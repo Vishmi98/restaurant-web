@@ -12,7 +12,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import CardInput from "@/modules/cart/ui/CardInput";
 
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe("pk_test_51placeholder12345");
 
 const CheckoutPageContent = () => {
     const router = useRouter();
