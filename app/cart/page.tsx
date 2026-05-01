@@ -244,11 +244,11 @@ const CartPage = () => {
                                     <HiOutlineShoppingBag size={28} />
                                 </div>
 
-                                <h2 className="text-2xl font-bold mb-3">
+                                <h2 className="text-2xl font-bold mb-3 text-white">
                                     Login Required
                                 </h2>
 
-                                <p className="text-white mb-8">
+                                <p className="text-muted mb-8">
                                     Please login to continue
                                     your checkout.
                                 </p>
