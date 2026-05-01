@@ -11,6 +11,7 @@ import DishCard from "@/modules/dish/ui/DishCard";
 import { DishDataType } from "@/modules/dish/dish.types";
 import { getDishes } from "@/modules/dish/dish.service";
 import DishCardSkeleton from "@/modules/dish/ui/DishCardSkeleton";
+import useCartStore from "@/store/cartStore";
 
 
 const responsive = {
@@ -20,12 +21,36 @@ const responsive = {
 };
 
 const OurShop = () => {
-    const [toastConfig, setToastConfig] = useState({ show: false, itemName: "" });
+    const [toastConfig, setToastConfig] = useState({
+        show: false,
+        itemName: "",
+        quantity: 1,
+    });
     const [dishes, setDishes] = useState<DishDataType[]>([]);
     const [loading, setLoading] = useState(true);
+    const addToCart = useCartStore((state) => state.addToCart);
 
-    const handleAddToCart = (name: string) => {
-        setToastConfig({ show: true, itemName: name });
+    const handleAddToCart = (dish: DishDataType) => {
+        addToCart({
+            id: dish.id,
+            name: dish.name,
+            price: dish.price,
+            quantity: 1,
+            image: dish.imagePath,
+        });
+
+        setToastConfig({
+            show: true,
+            itemName: dish.name,
+            quantity: 1,
+        });
+
+        setTimeout(() => {
+            setToastConfig((prev) => ({
+                ...prev,
+                show: false,
+            }));
+        }, 2500);
     };
 
     useEffect(() => {
@@ -141,13 +166,11 @@ const OurShop = () => {
                                     <DishCardSkeleton />
                                 </div>
                             ))
-                            : dishes.map((item) => (
-                                <div key={item.id} className="py-2">
+                            : dishes.map((dish) => (
+                                <div key={dish.id} className="py-2">
                                     <DishCard
-                                        card={item}
-                                        onAdd={() =>
-                                            handleAddToCart(item.name)
-                                        }
+                                        card={dish}
+                                        onAdd={() => handleAddToCart(dish)}
                                     />
                                 </div>
                             ))}
@@ -155,7 +178,11 @@ const OurShop = () => {
                 </motion.div>
             </div>
 
-            <CartToast show={toastConfig.show} itemName={toastConfig.itemName} />
+            <CartToast
+                show={toastConfig.show}
+                itemName={toastConfig.itemName}
+                quantity={toastConfig.quantity}
+            />
         </section>
     );
 };
