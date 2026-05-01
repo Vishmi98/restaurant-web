@@ -1,12 +1,12 @@
 const ProfileSkeleton = () => {
     return (
-        <main className="min-h-screen bg-black text-white pt-28 pb-16 animate-pulse">
+        <main className="min-h-screen bg-black text-white pt-28 pb-16">
             <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
                 {/* Back Button */}
-                <div className="h-5 w-36 bg-zinc-800 rounded mb-8" />
+                <div className="h-5 w-36 bg-zinc-800 rounded mb-8 animate-pulse" />
 
                 {/* Header */}
-                <div className="relative overflow-hidden bg-zinc-900 border border-white/10 rounded-3xl p-5 md:p-8 mb-8">
+                <div className="relative overflow-hidden bg-zinc-900 border border-white/10 rounded-3xl p-5 md:p-8 mb-8 animate-pulse">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         {/* Left */}
                         <div className="flex items-center gap-4 md:gap-6">
@@ -26,7 +26,7 @@ const ProfileSkeleton = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
                     {/* LEFT SIDE */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Personal Info */}
