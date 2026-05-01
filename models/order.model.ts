@@ -1,64 +1,84 @@
 import mongoose from "mongoose";
 
-// We define a sub-schema for Customer to ensure it follows your CustomerDataType structure
 const CustomerSchema = new mongoose.Schema({
-    id: { type: Number, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
-    address: { type: String, required: true },
+    id: Number,
+    name: String,
+    email: String,
+    phone: String,
+    address: String,
+});
+
+const OrderItemSchema = new mongoose.Schema({
+    dishId: Number,
+    name: String,
+    price: Number,
+    quantity: Number,
+    imagePath: String,
 });
 
 const OrderSchema = new mongoose.Schema(
     {
         id: {
             type: Number,
-            required: true,
-            unique: true
+            unique: true,
+            required: true
         },
+
         customer: {
             type: CustomerSchema,
             required: true
         },
+
+        items: {
+            type: [OrderItemSchema],
+            required: true
+        },
+
         totalAmount: {
             type: Number,
             required: true
         },
-        status: {
-            type: String,
-            required: true,
-            enum: ['Pending', 'Preparing', 'Out for Delivery', 'Delivered']
+
+        deliveryFee: {
+            type: Number,
+            default: 0
         },
+
         paymentMethod: {
             type: String,
-            required: true,
-            enum: ['Cash', 'Card']
-        },
-        dishes: {
-            type: [Number],
+            enum: ["Cash", "Card"],
             required: true
         },
-        numberOfDishes: {
-            type: Number,
-            required: true
+
+        isPaid: {
+            type: Boolean,
+            default: false
         },
-        date: {
-            type: Date,
-            default: Date.now
-        }
+
+        status: {
+            type: String,
+            enum: [
+                "Pending",
+                "Accepted",
+                "Preparing",
+                "Out for Delivery",
+                "Delivered",
+                "Cancelled"
+            ],
+            default: "Pending"
+        },
+
+        note: String,
+
+        estimatedDeliveryTime: Date
     },
     {
         timestamps: true
     }
 );
 
-OrderSchema.virtual('dishesInfo', {
-    ref: 'Dish',
-    localField: 'dishes',
-    foreignField: 'id',
-});
+const OrderModel =
+    mongoose.models.Order ||
+    mongoose.model("Order", OrderSchema);
 
-OrderSchema.set('toObject', { virtuals: true });
-OrderSchema.set('toJSON', { virtuals: true });
-
-export default mongoose.models.Order || mongoose.model("Order", OrderSchema);
+export default OrderModel;

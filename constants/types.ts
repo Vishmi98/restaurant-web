@@ -10,14 +10,12 @@ export type MobileNavProps = {
 }
 
 export type UserStoreUserType = {
+    id: number;
     email: string;
     firstName: string;
-    id: number;
-    isVerify: boolean;
     lastName: string;
     phone: string;
-    avaterPath?: string,
-    updateAvaterPath?: string,
+    isVerify: boolean;
 }
 
 export type ApiCallOptions = {
@@ -26,4 +24,16 @@ export type ApiCallOptions = {
     body?: Record<string, any>;
     params?: Record<string, any>;
     isAuth?: boolean;
+}
+
+export interface CommonButtonProps {
+    title: string;
+    onPress: () => void;
+    backgroundColor?: string; // Optional: Tailwind class like 'bg-blue-500'
+    textColor?: string;       // Optional: Tailwind class like 'text-white'
+    shadowColor?: string;
+    className?: string;       // For custom container styles
+    textClassName?: string;   // For custom text styles
+    disabled?: boolean;
+    loading?: boolean;
 }

@@ -1,20 +1,238 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { BsArrowLeft, BsChatDots, BsPhone } from "react-icons/bs";
-import { IoFastFoodOutline, IoBicycleOutline, IoCheckmarkDoneOutline } from "react-icons/io5";
+import {
+    BsArrowLeft,
+    BsChatDots,
+    BsPhone
+} from "react-icons/bs";
 
+import {
+    IoCheckmarkDoneOutline,
+    IoFastFoodOutline,
+    IoBicycleOutline,
+    IoTimeOutline
+} from "react-icons/io5";
+import { useParams } from "next/navigation";
 
-const TRACKING_STEPS = [
-    { id: 1, title: "Order Received", desc: "We have received your order", icon: <IoCheckmarkDoneOutline />, status: "complete" },
-    { id: 2, title: "Preparing Food", desc: "Our chefs are working their magic", icon: <IoFastFoodOutline />, status: "current" },
-    { id: 3, title: "On the Way", desc: "Driver is heading to your location", icon: <IoBicycleOutline />, status: "upcoming" },
-    { id: 4, title: "Delivered", desc: "Enjoy your gourmet meal!", icon: <IoCheckmarkDoneOutline />, status: "upcoming" },
-];
+import { getOrderById } from "@/modules/cart/cart.service";
+import { OrderDataType } from "@/modules/cart/cart.types";
+
 
 const TrackOrderPage = () => {
+    const [order, setOrder] = useState<OrderDataType | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const params = useParams();
+    const orderId = Number(params.id);
+
+    const fetchOrder = async () => {
+        try {
+            setLoading(true);
+
+            const response = await getOrderById({ id: orderId });
+
+            if (response.success) {
+                setOrder(response.order);
+            } else {
+                setOrder(null);
+            }
+        } catch (error) {
+            console.error("Failed to fetch order:", error);
+            setOrder(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        const startPolling = async () => {
+            await fetchOrder();
+        };
+
+        startPolling();
+
+        interval = setInterval(async () => {
+            const response = await getOrderById({ id: orderId });
+
+            if (response.success) {
+                setOrder(response.order);
+
+                // 🚀 STOP POLLING WHEN DELIVERED
+                if (response.order.status === "Delivered") {
+                    clearInterval(interval);
+                }
+            }
+        }, 10000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const getSteps = (status: string) => {
+        const currentStep = [
+            "Pending",
+            "Accepted",
+            "Preparing",
+            "Out for Delivery",
+            "Delivered"
+        ].indexOf(status);
+
+        return [
+            {
+                id: 1,
+                title: "Order Received",
+                desc: "We received your order",
+                icon: <IoCheckmarkDoneOutline />,
+                state:
+                    currentStep >= 0 ? "complete" : "upcoming"
+            },
+            {
+                id: 2,
+                title: "Preparing Food",
+                desc: "Chef is preparing your meal",
+                icon: <IoFastFoodOutline />,
+                state:
+                    currentStep === 2
+                        ? "current"
+                        : currentStep > 2
+                            ? "complete"
+                            : "upcoming"
+            },
+            {
+                id: 3,
+                title: "On The Way",
+                desc: "Driver heading to you",
+                icon: <IoBicycleOutline />,
+                state:
+                    currentStep === 3
+                        ? "current"
+                        : currentStep > 3
+                            ? "complete"
+                            : "upcoming"
+            },
+            {
+                id: 4,
+                title: "Delivered",
+                desc: "Enjoy your food",
+                icon: <IoCheckmarkDoneOutline />,
+                state:
+                    currentStep === 4
+                        ? "complete"
+                        : "upcoming"
+            }
+        ];
+    };
+
+    if (loading) {
+        return (
+            <main className="min-h-screen bg-black text-white pt-28 md:pt-36 pb-20">
+                <div className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24 animate-pulse">
+
+                    {/* Header Skeleton */}
+                    <div className="flex flex-col md:flex-row justify-between gap-6 mb-10">
+
+                        <div className="space-y-4">
+                            <div className="h-4 w-32 bg-white/10 rounded"></div>
+                            <div className="h-8 w-64 bg-white/10 rounded"></div>
+                            <div className="h-4 w-40 bg-white/10 rounded"></div>
+                        </div>
+
+                        <div className="h-20 w-48 bg-white/10 rounded-2xl"></div>
+                    </div>
+
+                    <div className="grid lg:grid-cols-3 gap-8">
+
+                        {/* Left Skeleton */}
+                        <div className="space-y-6">
+
+                            {/* Timeline skeleton */}
+                            <div className="bg-white/10 border border-white/20 p-6 rounded-3xl space-y-8">
+
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="flex gap-4">
+                                        <div className="w-10 h-10 bg-white/10 rounded-xl"></div>
+
+                                        <div className="space-y-2 flex-1">
+                                            <div className="h-4 w-40 bg-white/10 rounded"></div>
+                                            <div className="h-3 w-60 bg-white/10 rounded"></div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                            </div>
+
+                            {/* Contact skeleton */}
+                            <div className="bg-white/10 border border-white/20 p-5 rounded-3xl flex justify-between items-center">
+                                <div className="space-y-2">
+                                    <div className="h-3 w-24 bg-white/10 rounded"></div>
+                                    <div className="h-4 w-32 bg-white/10 rounded"></div>
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <div className="w-10 h-10 bg-white/10 rounded-full"></div>
+                                    <div className="w-10 h-10 bg-white/10 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Skeleton */}
+                        <div className="lg:col-span-2 space-y-8">
+
+                            {/* Items */}
+                            <div className="bg-white/10 border border-white/20 p-6 rounded-3xl space-y-4">
+
+                                <div className="h-6 w-40 bg-white/10 rounded"></div>
+
+                                {[1, 2, 3].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="flex justify-between border-b border-white/10 pb-4"
+                                    >
+                                        <div className="space-y-2">
+                                            <div className="h-4 w-40 bg-white/10 rounded"></div>
+                                            <div className="h-3 w-20 bg-white/10 rounded"></div>
+                                        </div>
+
+                                        <div className="h-4 w-16 bg-white/10 rounded"></div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Summary */}
+                            <div className="bg-white/10 border border-white/20 p-6 rounded-3xl space-y-4">
+
+                                <div className="h-6 w-32 bg-white/10 rounded"></div>
+
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="flex justify-between">
+                                        <div className="h-4 w-24 bg-white/10 rounded"></div>
+                                        <div className="h-4 w-20 bg-white/10 rounded"></div>
+                                    </div>
+                                ))}
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </main>
+        );
+    }
+
+    if (!order) {
+        return (
+            <main className="min-h-screen bg-black text-white flex justify-center items-center">
+                Order Not Found
+            </main>
+        );
+    }
+
+    const steps = getSteps(order.status);
+
     return (
         <main className="min-h-screen bg-black text-white pt-28 md:pt-35 pb-25">
             <div className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24">
@@ -25,95 +243,191 @@ const TrackOrderPage = () => {
                         <Link href="/menu" className="flex items-center gap-2 text-muted hover:text-primary transition-colors mb-4">
                             <BsArrowLeft /> <span>Back to Menu</span>
                         </Link>
-                        <h1 className="text-2xl md:text-3xl font-libre font-bold">Track Order <span className="text-primary">#RF-82910</span></h1>
+
+                        <h1 className="text-2xl md:text-3xl font-libre font-bold">
+                            Track Order{" "}
+                            <span className="text-primary">
+                                #{order.id}
+                            </span>
+                        </h1>
+
+                        <p className="text-muted mt-2">
+                            {order.customer.name}
+                        </p>
                     </div>
-                    <div className="bg-white/10 border border-white/30 px-10 py-2 rounded-2xl flex items-center gap-4">
-                        <div className="text-right">
-                            <p className="text-xs text-muted uppercase tracking-widest">Est. Arrival</p>
-                            <p className="font-bold text-xl text-primary">12:45 PM</p>
+
+                    <div className="bg-white/10 border border-white/20 px-6 py-4 rounded-2xl">
+                        <p className="text-sm text-muted mb-1">
+                            Estimated Arrival
+                        </p>
+                        <div className="flex items-center gap-2 text-primary font-bold text-xl">
+                            <IoTimeOutline />
+                            {new Date(
+                                order.estimatedDeliveryTime
+                            ).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit"
+                            })}
                         </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left: Status Timeline */}
-                    <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-white/10 border border-white/30 p-4 rounded-[32px] relative overflow-hidden">
-                            <div className="relative z-10 space-y-10">
-                                {TRACKING_STEPS.map((step, index) => (
-                                    <div key={step.id} className="flex gap-4 relative">
-                                        {/* Connector Line */}
-                                        {index !== TRACKING_STEPS.length - 1 && (
-                                            <div className={`absolute left-6 top-12 w-0.5 h-10 ${step.status === 'complete' ? 'bg-primary' : 'bg-white/10'}`} />
-                                        )}
 
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-500 ${step.status === 'complete' ? 'bg-primary text-white' :
-                                            step.status === 'current' ? 'bg-primary/20 text-primary border border-primary/50 animate-pulse' :
-                                                'bg-white/10 text-muted'
-                                            }`}>
+                    {/* Left */}
+                    <div className="space-y-6">
+
+                        {/* Timeline */}
+                        <div className="bg-white/10 border border-white/20 p-6 rounded-3xl">
+                            <div className="space-y-12">
+
+                                {steps.map((step, index) => (
+                                    <div
+                                        key={step.id}
+                                        className="flex gap-4 relative"
+                                    >
+                                        {index !==
+                                            steps.length - 1 && (
+                                                <div
+                                                    className={`absolute left-5 top-12 w-0.5 h-10 ${step.state === "complete"
+                                                        ? "bg-primary"
+                                                        : "bg-white/10"
+                                                        }`}
+                                                />
+                                            )}
+
+                                        <div
+                                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${step.state ===
+                                                "complete"
+                                                ? "bg-primary text-white"
+                                                : step.state ===
+                                                    "current"
+                                                    ? "bg-primary/20 text-primary border border-primary animate-pulse"
+                                                    : "bg-white/10 text-zinc-500"
+                                                }`}
+                                        >
                                             {step.icon}
                                         </div>
 
                                         <div>
-                                            <h3 className={`font-bold ${step.status === 'upcoming' ? 'text-muted' : 'text-white'}`}>{step.title}</h3>
-                                            <p className="text-sm text-muted">{step.desc}</p>
+                                            <h3 className="font-semibold">
+                                                {step.title}
+                                            </h3>
+                                            <p className="text-sm text-muted">
+                                                {step.desc}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Driver Info Card */}
+                        {/* Contact Card */}
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="bg-primary/10 border border-primary/20 p-4 gap-2 rounded-[32px] flex items-center justify-between"
+                            initial={{
+                                opacity: 0,
+                                y: 20
+                            }}
+                            animate={{
+                                opacity: 1,
+                                y: 0
+                            }}
+                            className="bg-primary/10 border border-primary/20 p-5 rounded-3xl flex"
                         >
-                            <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-white/10 overflow-hidden relative">
-                                    {/* Replace with actual driver image */}
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-primary font-bold uppercase">Your Rider</p>
-                                    <h4 className="font-bold text-lg">Alex Rodriguez</h4>
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <button className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors">
+                            <p className="text-sm text-primary mb-3">
+                                Need Help?
+                            </p>
+
+                            <div className="flex gap-3">
+                                <button className="w-11 h-11 rounded-full bg-white/10 hover:bg-primary flex items-center justify-center transition">
                                     <BsChatDots />
                                 </button>
-                                <button className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors text-white">
+
+                                <button className="w-11 h-11 rounded-full bg-white/10 hover:bg-primary flex items-center justify-center transition">
                                     <BsPhone />
                                 </button>
                             </div>
                         </motion.div>
                     </div>
 
-                    {/* Right: Map Simulation */}
-                    <div className="lg:col-span-2">
-                        <div className="h-[400px] lg:h-full min-h-[400px] bg-white/10 border border-white/30 rounded-[40px] overflow-hidden relative group">
-                            {/* In a real app, integrate Google Maps or Mapbox here */}
-                            <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-73.9857,40.7484,14/1000x1000?access_token=YOUR_TOKEN')] bg-cover bg-center opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700" />
+                    {/* Right */}
+                    <div className="lg:col-span-2 space-y-8">
 
-                            {/* Pulsing User Location */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                <div className="w-4 h-4 bg-primary rounded-full relative">
-                                    <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-75" />
-                                </div>
-                            </div>
+                        {/* Order Items */}
+                        <div className="bg-white/10 border border-white/20 p-6 rounded-3xl">
+                            <h2 className="text-xl font-bold mb-5">
+                                Order Items
+                            </h2>
 
-                            {/* Map Overlay Info */}
-                            <div className="absolute bottom-6 left-6 right-6 bg-black/60 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex justify-between items-center">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                                    <span className="text-sm font-medium">Live Location Active</span>
-                                </div>
-                                <span className="text-xs text-zinc-400">Updates every 5s</span>
+                            <div className="space-y-4">
+                                {order.items.map((item) => (
+                                    <div
+                                        key={item.dishId}
+                                        className="flex justify-between border-b border-white/10 pb-4"
+                                    >
+                                        <div>
+                                            <h3 className="font-medium">
+                                                {item.name}
+                                            </h3>
+
+                                            <p className="text-sm text-muted">
+                                                Qty: {item.quantity}
+                                            </p>
+                                        </div>
+
+                                        <p className="font-semibold text-primary">
+                                            $
+                                            {(
+                                                item.price *
+                                                item.quantity
+                                            ).toFixed(2)}
+                                        </p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                    </div>
 
+                        {/* Summary */}
+                        <div className="bg-white/10 border border-white/20 p-6 rounded-3xl">
+                            <h2 className="text-xl font-bold mb-5">
+                                Summary
+                            </h2>
+
+                            <div className="space-y-3 text-zinc-300">
+                                <div className="flex justify-between">
+                                    <span>Status</span>
+                                    <span className="text-primary">
+                                        {order.status}
+                                    </span>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <span>Payment</span>
+                                    <span>
+                                        {order.paymentMethod}
+                                    </span>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <span>Address</span>
+                                    <span className="text-right max-w-xs">
+                                        {order.customer.address}
+                                    </span>
+                                </div>
+
+                                <div className="flex justify-between font-bold text-white pt-4 border-t border-white/10">
+                                    <span>Total</span>
+                                    <span className="text-primary">
+                                        $
+                                        {order.totalAmount.toFixed(
+                                            2
+                                        )}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </main>

@@ -3,8 +3,8 @@ export type Category = "Appetizers" | "Main Course" | "Sides" | "Desserts" | "Be
 export type DishDataType = {
     id: number;
     name: string;
-    price: string;
-    newPrice?: string;
+    price: number;
+    newPrice?: number;
     imagePath: string;
     imageId: string;
     description: string;

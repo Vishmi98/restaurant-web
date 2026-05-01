@@ -6,3 +6,7 @@ export const slugify = (text: string) => {
         .replace(/--+/g, '-')     // Replace multiple - with single -
         .trim();                  // Trim whitespace
 };
+
+export const generateAlphanumericVerificationCode = (): string => {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();  // Generates a random 6-character alphanumeric code
+};

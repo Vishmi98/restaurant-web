@@ -2,10 +2,12 @@ import { DishCardProps } from "@/modules/home/home.types";
 
 export const GOOGLE_MAP_KEY = "AIzaSyDKxii_HXUqbiIO1mQfOzUGuLyWll0GiR4"
 
+export const JWT_SECRET = "eregr5trertw56rrgfhtyrt5tfasrgt235346346ffgsdfgdfsg4dfefsdrwef"
+
 export const HERO_IMAGES = ["/banner-1.jpg", "/banner-2.jpg", "/banner-3.jpg"];
 
 export const NAV_ITEMS = [
-    { label: "Home", href: "#" },
+    { label: "Home", href: "/" },
     { label: "Our Story", href: "#our-story" },
     { label: "Menu", href: "/menu" },
     { label: "Contact", href: "#contact" },

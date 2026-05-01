@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { DishDataType } from "../dish.types";
-import { slugify } from "@/constants/utils";
+
 
 interface ExtendedDishCardProps {
     card: DishDataType;
@@ -37,7 +37,7 @@ const DishCard = ({ card, onAdd }: ExtendedDishCardProps) => {
                 <div
                     className="absolute inset-0 bg-black/30 rounded-full
                     opacity-0 group-hover:opacity-100
-                    transition-all duration-500"
+                    transition-all duration-500 hidden md:block"
                 />
 
                 {/* Add to Cart Button */}
@@ -49,7 +49,7 @@ const DishCard = ({ card, onAdd }: ExtendedDishCardProps) => {
                     cursor-pointer font-medium w-3/4
                     opacity-0 scale-75
                     group-hover:opacity-100 group-hover:scale-100
-                    transition-all duration-500 ease-out z-10"
+                    transition-all duration-500 ease-out z-10 hidden md:block"
                 >
                     Add to Cart
                 </button>
@@ -57,7 +57,7 @@ const DishCard = ({ card, onAdd }: ExtendedDishCardProps) => {
 
             {/* Name */}
             <Link href={`/menu/${generateSlugUrl(card)}`}>
-                <h3 className="text-lg font-semibold mt-4 mb-2 font-libre">
+                <h3 className="text-lg font-semibold mb-2 font-libre">
                     {card.name}
                 </h3>
             </Link>
@@ -73,6 +73,17 @@ const DishCard = ({ card, onAdd }: ExtendedDishCardProps) => {
                     </span>
                 )}
                 {card.price}
+            </div>
+            <div className="flex item-center justify-center mt-3">
+                <button
+                    type="button"
+                    onClick={onAdd}
+                    className="
+                bg-primary text-white px-5 py-2 rounded-full text-sm md:text-base
+                cursor-pointer font-medium w-3/4 z-10 block md:hidden"
+                >
+                    Add to Cart
+                </button>
             </div>
         </div>
     );

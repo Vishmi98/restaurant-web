@@ -1,13 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { BsCheck2Circle, BsBagCheck, BsArrowRight } from "react-icons/bs";
 import { IoTimerOutline, IoMapOutline } from "react-icons/io5";
+import { useSearchParams } from "next/navigation";
 
 
-const SuccessPage = () => {
+const SuccessPageContent = () => {
+    const searchParams = useSearchParams();
+    const orderId = searchParams.get("orderId");
+
     return (
         <main className="min-h-screen bg-black text-white flex items-center justify-center pt-28 md:pt-35 pb-12">
             <div className="max-w-3xl w-full px-6">
@@ -76,7 +80,7 @@ const SuccessPage = () => {
                     {/* Actions */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Link
-                            href="/track"
+                            href={`/track/${orderId}`}
                             className="w-full md:w-[40%] bg-primary hover:bg-primary/90 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 transition-all group"
                         >
                             <IoMapOutline size={20} />
@@ -100,5 +104,14 @@ const SuccessPage = () => {
         </main>
     );
 };
+
+const SuccessPage = () => {
+    return (
+        // Wrap the client-side content with Suspense
+        <Suspense fallback={<div>Loading...</div>}>
+            <SuccessPageContent />
+        </Suspense>
+    );
+}
 
 export default SuccessPage;

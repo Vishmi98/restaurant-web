@@ -36,8 +36,8 @@ export const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Serendib Blossom",
-  description: "Sri Lankan Restaurant",
+  title: "Traditional Food",
+  description: "Authentic Sri Lankan Restaurant",
 };
 
 export default function RootLayout({
